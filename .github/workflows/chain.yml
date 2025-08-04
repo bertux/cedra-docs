@@ -1,0 +1,29 @@
+name: Onchain action on Cedra
+
+on:
+  push:
+    branches:
+      - onchain
+      
+jobs:
+    mint-sbt:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-node@v3
+          with:
+            node-version: 18
+            cache: npm
+
+        - name: Install Cedra TS SDK
+          run:
+            npm install @cedra-labs/ts-sdk
+
+        - name: Mint SBT
+          env:
+            MINTER_PRIVATE_KEY: ${{ secrets.CEDRA_MINTER_KEY }}
+            NETWORK: ${{ vars.CEDRA_NETWORK }}
+          run: |
+            node scripts/index.js \
+              --recipient "${{ github.event.inputs.recipient_address }}" \
+              --metadata "${{ github.event.inputs.token_metadata }}"
